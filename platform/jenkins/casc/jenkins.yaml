@@ -1,0 +1,127 @@
+jenkins:
+  systemMessage: "iVolve CI — local Floci lab. Shared library: ivolve-shared-library"
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  globalNodeProperties:
+    - envVars:
+        env:
+          - key: AWS_ENDPOINT_URL
+            value: "http://floci:4566"
+          - key: AWS_DEFAULT_REGION
+            value: "us-east-1"
+          - key: AWS_ACCESS_KEY_ID
+            value: "test"
+          - key: AWS_SECRET_ACCESS_KEY
+            value: "test"
+
+unclassified:
+  location:
+    url: "http://localhost:8081/"
+    adminAddress: "jenkins@ivolve.local"
+  shell:
+    shell: /bin/bash
+  globalLibraries:
+    libraries:
+      - name: "ivolve-shared-library"
+        defaultVersion: "main"
+        implicit: false
+        allowVersionOverride: true
+        includeInChangesets: false
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "http://gitea:3000/ivolve/CloudDevOpsProject.git"
+                credentialsId: "gitea-credentials"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              scope: GLOBAL
+              id: "gitea-credentials"
+              username: "ivolve"
+              password: "${GITEA_PASSWORD}"
+              description: "Local Gitea (ArgoCD + Jenkins)"
+          - string:
+              scope: GLOBAL
+              id: "aws-account-id"
+              secret: "000000000000"
+              description: "Floci pseudo account id"
+          - string:
+              scope: GLOBAL
+              id: "aws-access-key-id"
+              secret: "test"
+              description: "Floci access key"
+          - string:
+              scope: GLOBAL
+              id: "aws-secret-access-key"
+              secret: "test"
+              description: "Floci secret key"
+
+jobs:
+  - script: |
+      pipelineJob('frontend') {
+        description('frontend CI — shared library ivolve-shared-library')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('http://gitea:3000/ivolve/CloudDevOpsProject.git')
+                  credentials('gitea-credentials')
+                }
+                branch('*/main')
+              }
+            }
+            scriptPath('jenkins/pipelines/frontend.Jenkinsfile')
+          }
+        }
+      }
+      pipelineJob('auth-service') {
+        description('auth-service CI — shared library ivolve-shared-library')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('http://gitea:3000/ivolve/CloudDevOpsProject.git')
+                  credentials('gitea-credentials')
+                }
+                branch('*/main')
+              }
+            }
+            scriptPath('jenkins/pipelines/auth-service.Jenkinsfile')
+          }
+        }
+      }
+      pipelineJob('roadmap-service') {
+        description('roadmap-service CI — shared library ivolve-shared-library')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('http://gitea:3000/ivolve/CloudDevOpsProject.git')
+                  credentials('gitea-credentials')
+                }
+                branch('*/main')
+              }
+            }
+            scriptPath('jenkins/pipelines/roadmap-service.Jenkinsfile')
+          }
+        }
+      }

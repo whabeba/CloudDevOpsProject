@@ -1,0 +1,15 @@
+configuration-as-code
+job-dsl
+workflow-aggregator
+workflow-cps-global-lib
+git
+github
+docker-workflow
+ssh-agent
+credentials-binding
+plain-credentials
+pipeline-stage-view
+timestamps
+ws-cleanup
+antisamy-markup-formatter
+matrix-auth

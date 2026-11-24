@@ -1,0 +1,85 @@
+###############################################################################
+# Local lab services for the Floci-based, fully local run.
+#
+#   docker network create ivolve-lab          # once
+#   docker run -d --name floci --network ivolve-lab \
+#     -p 4566:4566 -v //var/run/docker.sock:/var/run/docker.sock \
+#     -e FLOCI_STORAGE_MODE=hybrid floci/floci:latest
+#   docker compose -f platform/docker-compose.yml up -d --build
+#
+# Floci is started outside Compose because it publishes dynamic ports for the
+# EKS k3s cluster and the ECR registry (5100/6500 by default), which Compose
+# would not track.
+###############################################################################
+name: ivolve-lab
+
+networks:
+  lab:
+    name: ivolve-lab
+    external: true
+
+volumes:
+  gitea-data:
+  gitea-config:
+  jenkins-home:
+
+services:
+  gitea:
+    image: gitea/gitea:1.22
+    container_name: ivolve-gitea
+    restart: unless-stopped
+    environment:
+      USER_UID: "1000"
+      USER_GID: "1000"
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__HTTP_PORT: "3000"
+      GITEA__server__ROOT_URL: http://localhost:3001/
+      GITEA__server__SSH_PORT: "2222"
+      GITEA__server__SSH_LISTEN_PORT: "22"
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA__service__REQUIRE_SIGNIN_VIEW: "false"
+      GITEA__repository__DEFAULT_BRANCH: main
+    ports:
+      - "3001:3000"
+      - "2222:22"
+    volumes:
+      - gitea-data:/data
+      - gitea-config:/etc/gitea
+    networks:
+      - lab
+
+  jenkins:
+    build:
+      context: ./jenkins
+    image: ivolve/jenkins:local
+    container_name: ivolve-jenkins
+    restart: unless-stopped
+    depends_on:
+      - gitea
+    environment:
+      JENKINS_ADMIN_PASSWORD: ${JENKINS_ADMIN_PASSWORD:-admin}
+      GITEA_PASSWORD: ${GITEA_PASSWORD:-ivolve-lab-pass}
+      AWS_ENDPOINT_URL: http://floci:4566
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc/jenkins.yaml
+      JAVA_OPTS: >-
+        -Djenkins.install.runSetupWizard=false
+        -Djava.awt.headless=true
+        -Xmx1024m
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - ./jenkins/casc/jenkins.yaml:/var/jenkins_home/casc/jenkins.yaml:ro
+      - //var/run/docker.sock:/var/run/docker.sock
+      - ../:/workspace:ro
+    extra_hosts:
+      # Floci's ECR registry is advertised as <account>.dkr.ecr.<region>.localhost:5100.
+      # Resolve it to the Docker host so docker login/push from inside Jenkins works.
+      - "000000000000.dkr.ecr.us-east-1.localhost:host-gateway"
+    networks:
+      - lab
