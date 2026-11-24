@@ -1,0 +1,3 @@
+---
+trivy_keyring: /usr/share/keyrings/trivy.gpg
+trivy_repo: "deb [signed-by={{ trivy_keyring }}] https://aquasecurity.github.io/trivy-repo/deb generic main"

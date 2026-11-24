@@ -1,0 +1,27 @@
+---
+- name: Install the Trivy repository signing key
+  ansible.builtin.get_url:
+    url: https://aquasecurity.github.io/trivy-repo/deb/public.key
+    dest: "{{ trivy_keyring }}"
+    mode: "0644"
+
+- name: Add the Trivy apt repository
+  ansible.builtin.apt_repository:
+    repo: "{{ trivy_repo }}"
+    filename: trivy
+    state: present
+
+- name: Install Trivy
+  ansible.builtin.apt:
+    name: trivy
+    state: present
+    update_cache: true
+
+- name: Check the Trivy version
+  ansible.builtin.command: trivy --version
+  register: trivy_version_output
+  changed_when: false
+
+- name: Show the Trivy version
+  ansible.builtin.debug:
+    msg: "{{ trivy_version_output.stdout_lines }}"

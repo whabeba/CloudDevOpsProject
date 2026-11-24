@@ -1,0 +1,34 @@
+---
+- name: Configure the Jenkins EC2 instance
+  hosts: jenkins
+  become: true
+
+  pre_tasks:
+    - name: Update the apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+  roles:
+    - common
+    - java
+    - docker
+    - jenkins
+    - trivy
+
+  post_tasks:
+    - name: Show the installed tool versions
+      ansible.builtin.shell: |
+        set -e
+        echo "java:  $(java -version 2>&1 | head -n1)"
+        echo "docker: $(docker --version)"
+        echo "trivy: $(trivy --version | head -n1)"
+        echo "jenkins: $(dpkg-query -W -f='${Version}' jenkins)"
+      args:
+        executable: /bin/bash
+      register: versions
+      changed_when: false
+
+    - name: Print versions
+      ansible.builtin.debug:
+        msg: "{{ versions.stdout_lines }}"

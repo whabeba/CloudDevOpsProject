@@ -1,0 +1,14 @@
+---
+- name: Install Java (Jenkins LTS requires Java 17 or 21)
+  ansible.builtin.apt:
+    name: openjdk-21-jre-headless
+    state: present
+
+- name: Check the Java version
+  ansible.builtin.command: java -version
+  register: java_version
+  changed_when: false
+
+- name: Show the Java version
+  ansible.builtin.debug:
+    msg: "{{ java_version.stderr_lines | default(java_version.stdout_lines) }}"

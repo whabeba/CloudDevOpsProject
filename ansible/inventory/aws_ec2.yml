@@ -1,0 +1,29 @@
+---
+# Dynamic inventory: discovers the Jenkins EC2 instance(s) by tag.
+#
+# Real AWS:
+#   ansible-inventory --graph
+#
+# Local lab (Floci):
+#   export AWS_ENDPOINT_URL=http://localhost:4566
+#   export AWS_ACCESS_KEY_ID=test
+#   export AWS_SECRET_ACCESS_KEY=test
+#   export AWS_DEFAULT_REGION=us-east-1
+#
+# Floci maps the instance SSH port to a host port in 2200-2299, so the local
+# lab uses ansible/inventory/local.ini instead of this plugin. See docs/local-lab.md.
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  tag:Name: ivolve-jenkins
+  instance-state-name: running
+hostnames:
+  - tag:Name
+compose:
+  ansible_host: public_ip_address
+  ansible_user: "'root'"
+keyed_groups:
+  - key: tags.Role
+    prefix: role
+    default_value: jenkins

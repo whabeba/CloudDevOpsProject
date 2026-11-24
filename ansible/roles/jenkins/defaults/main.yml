@@ -1,0 +1,5 @@
+---
+jenkins_port: 8080
+jenkins_java_opts: "-Djava.awt.headless=true -Xmx1024m"
+jenkins_home: /var/lib/jenkins
+jenkins_keyring: /usr/share/keyrings/jenkins-keyring.asc
