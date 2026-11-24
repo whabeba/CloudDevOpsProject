@@ -1,0 +1,13 @@
+project_name = "ivolve"
+aws_region   = "us-east-1"
+
+# Path is relative to this environment directory.
+ssh_public_key_path = "../../../platform/keys/id_rsa.pub"
+
+cluster_version    = "1.31"
+node_instance_type = "t3.medium"
+node_desired_size  = 1
+
+# Restrict these in a real production environment.
+ssh_cidr_blocks     = ["0.0.0.0/0"]
+jenkins_cidr_blocks = ["0.0.0.0/0"]

@@ -1,0 +1,11 @@
+project_name      = "ivolve"
+aws_region        = "us-east-1"
+aws_endpoint      = "http://localhost:4566"
+availability_zones = ["us-east-1a", "us-east-1b"]
+
+# Path is relative to this environment directory.
+ssh_public_key_path = "../../../platform/keys/id_rsa.pub"
+
+jenkins_ami_id    = "ami-ubuntu2404-amd64"
+cluster_version   = null
+node_instance_type = "t3.medium"
