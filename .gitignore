@@ -1,0 +1,44 @@
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# --- Env / secrets ---
+.env
+*.pem
+*.key
+terraform.tfvars
+!terraform.tfvars.example
+
+# --- Node ---
+node_modules/
+npm-debug.log*
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- Java ---
+target/
+
+# --- Terraform ---
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+tfplan
+*.tfplan
+
+# --- Ansible ---
+*.retry
+ansible/inventory/hosts.ini
+
+# --- Local lab runtime ---
+platform/runtime/
+platform/keys/
+platform/**/jenkins_home/
+platform/kubeconfig*.yaml
+data/
