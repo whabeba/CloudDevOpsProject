@@ -44,6 +44,11 @@ around it (Compose, Terraform, Ansible, Kubernetes, Jenkins, ArgoCD, docs).
 | --- | --- | --- |
 | ![Login](docs/screenshots/01-login.jpeg) | ![Sign up](docs/screenshots/02-signup.jpeg) | ![Roadmap](docs/screenshots/03-roadmap.jpeg) |
 
+### Demo
+
+[`docs/demo/ivolve-demo.mp4`](docs/demo/ivolve-demo.mp4) — 20-second screen recording of the stack
+running with Docker Compose: sign up → login → roadmap.
+
 ---
 
 ## 2. Repository layout
@@ -75,7 +80,9 @@ around it (Compose, Terraform, Ansible, Kubernetes, Jenkins, ArgoCD, docs).
 └── docs/
     ├── architecture.md
     ├── setup.md                  # production (real AWS) runbook
-    └── local-lab.md              # Floci-only, offline runbook
+    ├── local-lab.md              # Floci-only, offline runbook
+    ├── screenshots/              # application screens used in this README
+    └── demo/                     # end-to-end screen recording
 ```
 
 ---
