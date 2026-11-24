@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ivolve
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secret.yaml
+  - storageclass.yaml
+  - mysql-headless-service.yaml
+  - mysql-service.yaml
+  - mysql-statefulset.yaml
+  - auth-service.yaml
+  - roadmap-service.yaml
+  - frontend.yaml
+  - ingress.yaml

@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roadmap-service
+  namespace: ivolve
+  labels:
+    app: roadmap-service
+    app.kubernetes.io/name: roadmap-service
+    app.kubernetes.io/part-of: ivolve
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: roadmap-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: roadmap-service
+        app.kubernetes.io/name: roadmap-service
+        app.kubernetes.io/part-of: ivolve
+    spec:
+      containers:
+        - name: roadmap-service
+          image: roadmap-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: JAVA_OPTS
+              value: "-XX:MaxRAMPercentage=75"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 750m
+              memory: 640Mi
+          readinessProbe:
+            httpGet:
+              path: /api/roadmap
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          startupProbe:
+            httpGet:
+              path: /api/roadmap
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 36
+          livenessProbe:
+            httpGet:
+              path: /api/roadmap
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: roadmap-service
+  namespace: ivolve
+  labels:
+    app: roadmap-service
+    app.kubernetes.io/part-of: ivolve
+spec:
+  type: ClusterIP
+  selector:
+    app: roadmap-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

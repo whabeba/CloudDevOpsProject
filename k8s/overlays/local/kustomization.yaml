@@ -1,0 +1,49 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Local overlay for the Floci k3s cluster used in this lab.
+# - single replica per component (one shared k3s node)
+# - rancher local-path storage instead of the EBS CSI driver
+# - Traefik (bundled with k3s) instead of ingress-nginx
+namespace: ivolve
+
+resources:
+  - ../../base
+
+replicas:
+  - name: frontend
+    count: 1
+  - name: auth-service
+    count: 1
+  - name: roadmap-service
+    count: 1
+  - name: mysql
+    count: 1
+
+images:
+  - name: frontend
+    newName: 000000000000.dkr.ecr.us-east-1.localhost:5100/frontend
+    newTag: latest
+  - name: auth-service
+    newName: 000000000000.dkr.ecr.us-east-1.localhost:5100/auth-service
+    newTag: latest
+  - name: roadmap-service
+    newName: 000000000000.dkr.ecr.us-east-1.localhost:5100/roadmap-service
+    newTag: latest
+
+patches:
+  - path: patch-storageclass.yaml
+  - target:
+      kind: StorageClass
+      name: ivolve-sc
+    patch: |-
+      - op: remove
+        path: /parameters
+  - path: patch-ingress.yaml
+  - target:
+      kind: StatefulSet
+      name: mysql
+    patch: |-
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 1Gi

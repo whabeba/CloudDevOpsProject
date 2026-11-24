@@ -1,0 +1,9 @@
+# Floci's k3s cluster ships the local-path provisioner, not the EBS CSI driver.
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ivolve-sc
+provisioner: rancher.io/local-path
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer
