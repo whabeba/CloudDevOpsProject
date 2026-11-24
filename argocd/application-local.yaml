@@ -1,0 +1,38 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ivolve-local
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: ivolve
+    environment: local
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: ivolve
+
+  source:
+    # Gitea is published on the Windows host; 172.17.0.1 is the Docker bridge
+    # gateway reachable from the Floci k3s container.
+    repoURL: http://172.17.0.1:3001/ivolve/CloudDevOpsProject.git
+    targetRevision: main
+    path: k8s/overlays/local
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ivolve
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+    retry:
+      limit: 10
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m

@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ivolve
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: ivolve
+spec:
+  description: "iVolve microservices (frontend, auth-service, roadmap-service, MySQL)"
+
+  # Replace with the real repository URL after the first push.
+  # The local lab URL is listed as well so the same project works offline.
+  sourceRepos:
+    - "https://github.com/Ibrahim-Adel15/CloudDevOpsProject.git"
+    - "http://172.17.0.1:3001/ivolve/CloudDevOpsProject.git"
+
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: ivolve
+    - server: https://kubernetes.default.svc
+      namespace: argocd
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: storage.k8s.io
+      kind: StorageClass
+    - group: networking.k8s.io
+      kind: IngressClass
+
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+
+  orphanedResources:
+    warn: true
+
+  syncWindows:
+    - kind: allow
+      schedule: "* * * * *"
+      duration: 24h
+      applications:
+        - "*"

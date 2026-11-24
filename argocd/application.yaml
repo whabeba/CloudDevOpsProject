@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ivolve
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: ivolve
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: ivolve
+
+  source:
+    # Replace with the real repository URL after the first push.
+    repoURL: https://github.com/Ibrahim-Adel15/CloudDevOpsProject.git
+    targetRevision: main
+    path: k8s/overlays/prod
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ivolve
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 3m

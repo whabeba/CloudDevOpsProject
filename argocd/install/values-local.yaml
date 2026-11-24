@@ -1,0 +1,46 @@
+# ArgoCD Helm values for the local lab (Floci k3s single node).
+#   helm repo add argo https://argoproj.github.io/argo-helm
+#   helm upgrade --install argocd argo/argo-cd -n argocd --create-namespace \
+#     -f argocd/install/values-local.yaml
+server:
+  service:
+    type: ClusterIP
+
+configs:
+  params:
+    server.insecure: true
+  cm:
+    application.instanceLabelKey: argocd.argoproj.io/instance
+    resource.compareoptions: |
+      ignoreAggregatedRoles: true
+    timeout.reconciliation: 60s
+
+controller:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 512Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 384Mi
+
+redis:
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+applicationSet:
+  enabled: false
+
+notifications:
+  enabled: false
